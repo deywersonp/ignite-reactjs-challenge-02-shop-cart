@@ -41,7 +41,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
-      const product = products.find(product => product.id === productId);
+      // const product = products.find(product => product.id === productId);
+      const { data: product } = await api.get(`/products/${productId}`);
       if (!product) {
         toast.error('Erro na adição do produto');
         return;
@@ -90,15 +91,26 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      const product = products.find(product => product.id === productId);
-      if (!product) {
-        toast.error('Erro na remoção do produto');
-        return;
-      };
+      const updatedCart = [...cart];
+      const productIndex = updatedCart.findIndex(product => product.id === productId);
 
-      const newCart = [...cart].filter(product => product.id !== productId);
-      setCart(newCart);
-      localStorage.setItem(CART_STORAGED, JSON.stringify(newCart));
+      if (productIndex >= 0) {
+        updatedCart.splice(productIndex, 1);
+        setCart(updatedCart);
+        localStorage.setItem(CART_STORAGED, JSON.stringify(updatedCart))
+      } else {
+        throw Error();
+      }
+
+      // const product = products.find(product => product.id === productId);
+      // if (!product) {
+      //   toast.error('Erro na remoção do produto');
+      //   return;
+      // };
+
+      // const newCart = [...cart].filter(product => product.id !== productId);
+      // setCart(newCart);
+      // localStorage.setItem(CART_STORAGED, JSON.stringify(newCart));
     } catch {
       toast.error('Erro na remoção do produto');
     }
